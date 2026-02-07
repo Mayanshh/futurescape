@@ -1,0 +1,84 @@
+@import "tailwindcss";
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+      font-family: var(--font-okomito-bold);
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+  }
+}
+
+:root {
+  --font-bebas-neue: "bebas-neue";
+  --font-okomito-bold: "okomito-bold";
+  --font-okomito-medium: "okomito-medium";
+  --font-roboto-condensed: "Roboto Condensed Variable"
+}
+
+/* FONTS */
+@font-face {
+  font-family: "bebas-neue";
+  src: url("/fonts/bebasneue-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "okomito-bold";
+  src: url("/fonts/okomito-bold.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "okomito-medium";
+  src: url("/fonts/okomito-medium.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+#heroText,
+#footerHeroText,
+#loading_txt {
+  font-family: var(--font-roboto-condensed);
+}
+#navElems {
+  font-family: var(--font-okomito-bold);
+  mix-blend-mode: difference;
+}
+#textRevealParent {
+  font-family: var(--font-okomito-medium);
+}
+#logo{
+  font-family: var(--font-okomito-bold);
+}
+#infoText, #infoText2 {
+  font-family: var(--font-okomito-medium);
+}
+.okomito-bold {
+  font-family: var(--font-okomito-bold);
+}
+.marqueeTxt{
+  font-family: var(--font-okomito-bold);
+}
+
+/* Add this to index.css */
+#navElems {
+  isolation: auto !important;
+  mix-blend-mode: difference !important;
+  backface-visibility: hidden; /* Fixes some Chrome/Safari rendering bugs */
+}
+
+#logo, #navElems a {
+  color: white !important; /* Must be white to invert correctly */
+}
