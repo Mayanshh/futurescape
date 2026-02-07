@@ -17,6 +17,9 @@ import HomePage from './pages/HomePage';
 import GalleryPage from './pages/GalleryPage';
 import ArtistsPage from './pages/ArtistsPage';
 import ArtistProfile from './pages/ArtistProfile';
+import CollectionsPage from './pages/CollectionsPage';
+import InsightsPage from './pages/InsightsPage';
+import AuthPage from './pages/AuthPage';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,9 +45,12 @@ const AppContent = () => {
   const lenisRef = useRef(null);
   const mainContentRef = useRef(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  // 1. Get current location to check for Auth page
+  const location = useLocation();
 
   useEffect(() => {
-    // 1. Initialize Lenis (Smooth Scroll)
+    // 2. Initialize Lenis (Smooth Scroll)
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Expo ease
@@ -54,7 +60,7 @@ const AppContent = () => {
     
     lenisRef.current = lenis;
 
-    // 2. Sync ScrollTrigger with Lenis
+    // 3. Sync ScrollTrigger with Lenis
     lenis.on('scroll', ScrollTrigger.update);
     
     const raf = (time) => {
@@ -63,8 +69,7 @@ const AppContent = () => {
     };
     requestAnimationFrame(raf);
 
-    // 3. Initial Preloader Sequence
-    // This only runs ONCE when the user first lands on the site
+    // 4. Initial Preloader Sequence
     const handleInitialLoad = () => {
       const timer = setTimeout(() => {
         setIsInitialLoad(false);
@@ -79,7 +84,7 @@ const AppContent = () => {
              ScrollTrigger.refresh();
           }
         });
-      }, 2500); // Matches your preloader duration
+      }, 2500); 
 
       return () => clearTimeout(timer);
     };
@@ -91,25 +96,23 @@ const AppContent = () => {
     };
   }, []);
 
+  // Helper to determine if we should show Navbar
+  const shouldShowNavbar = location.pathname !== '/auth';
+
   return (
     <div className="w-full bg-white text-black min-h-screen">
-      {/* PRELOADER 
-        Only visible when isInitialLoad is true. 
-        Native browser refreshes (like using <a> tags) will reset this state.
-      */}
+      {/* PRELOADER */}
       <Preloader isLoading={isInitialLoad} />
 
       <div 
         ref={mainContentRef} 
         className={`relative transition-opacity duration-700 ${isInitialLoad ? 'opacity-0' : 'opacity-100'}`}
       >
-        {/* TRANSITION OVERLAY 
-            Handles the 'blackout' animation during route changes. 
-        */}
+        {/* TRANSITION OVERLAY */}
         <TransitionPortal lenis={lenisRef.current} />
         
-        {/* SHARED UI */}
-        <Navbar />
+        {/* SHARED UI - Conditionally Rendered */}
+        {shouldShowNavbar && <Navbar />}
         
         {/* SCROLL MANAGER */}
         <ScrollToTop lenis={lenisRef.current} />
@@ -120,6 +123,9 @@ const AppContent = () => {
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/artists" element={<ArtistsPage />} />
           <Route path="/artist/:id" element={<ArtistProfile />} />
+          <Route path="/collections" element={<CollectionsPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Routes>
       </div>
     </div>

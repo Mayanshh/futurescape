@@ -5,61 +5,109 @@ import { useGSAP } from '@gsap/react';
 import HeroNav from '../HeroNav';
 import HeroFooter from '../HeroFooter';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const Hero = () => {
-  // We use state to toggle between Fixed (middle of screen) and Absolute (stuck to the section)
-  const [navStyle, setNavStyle] = useState({ pos: 'fixed', top: '46.5%' });
+  // Nav positioning state (desktop defaults preserved)
+  const [navStyle, setNavStyle] = useState({
+    pos: 'fixed',
+    top: '46.5%',
+  });
 
   useGSAP(() => {
-    // 1. PIN THE HERO BACKGROUND
-    ScrollTrigger.create({
-      trigger: '.hero-sec',
-      start: 'top top',
-      end: () => window.innerHeight,
-      pin: true,
-      pinSpacing: false,
+    const mm = gsap.matchMedia();
+
+    /* ---------------- DESKTOP (UNCHANGED) ---------------- */
+    mm.add('(min-width: 1024px)', () => {
+      // Pin hero background
+      ScrollTrigger.create({
+        trigger: '.hero-sec',
+        start: 'top top',
+        end: () => window.innerHeight,
+        pin: true,
+        pinSpacing: false,
+      });
+
+      // Hero text + HeroNav handoff
+      ScrollTrigger.create({
+        trigger: '#textRevealParent',
+        start: 'top top',
+        onEnter: () => {
+          const currentScroll = window.scrollY;
+
+          gsap.set('#heroText', {
+            position: 'absolute',
+            top: currentScroll + window.innerHeight * -0.058,
+          });
+
+          setNavStyle({
+            pos: 'absolute',
+            top: currentScroll + window.innerHeight * 0.465 + 'px',
+          });
+        },
+        onLeaveBack: () => {
+          gsap.set('#heroText', {
+            position: 'fixed',
+            top: '-5.8%',
+          });
+
+          setNavStyle({
+            pos: 'fixed',
+            top: '46.5%',
+          });
+        },
+      });
     });
 
-    // 2. HERO TEXT & HERONAV HANDOFF LOGIC
-    // When the next section (#textRevealParent) hits the top, 
-    // we "drop" the fixed elements so they scroll away naturally.
-    ScrollTrigger.create({
-      trigger: '#textRevealParent',
-      start: 'top top',
-      onEnter: () => {
-        const currentScroll = window.scrollY;
-        
-        // Pin Hero Text to its current visual position but in absolute terms
-        gsap.set('#heroText', {
-          position: 'absolute',
-          top: currentScroll + (window.innerHeight * -0.058), 
-        });
+    /* ---------------- TABLET + MOBILE ---------------- */
+    mm.add('(max-width: 1023px)', () => {
+      // Pin hero background (shorter pin for mobile comfort)
+      ScrollTrigger.create({
+        trigger: '.hero-sec',
+        start: 'top top',
+        end: () => window.innerHeight * 0.85,
+        pin: true,
+        pinSpacing: false,
+      });
 
-        // Pin Hero Nav to its current visual position
-        setNavStyle({
-          pos: 'absolute',
-          top: currentScroll + (window.innerHeight * 0.465) + 'px',
-        });
-      },
-      onLeaveBack: () => {
-        // Return them to fixed positions when scrolling back up
-        gsap.set('#heroText', { 
-          position: 'fixed', 
-          top: '-5.8%' 
-        });
-        setNavStyle({ 
-          pos: 'fixed', 
-          top: '46.5%' 
-        });
-      },
+      ScrollTrigger.create({
+        trigger: '#textRevealParent',
+        start: 'top top',
+        onEnter: () => {
+          const currentScroll = window.scrollY;
+
+          // Hero text drops earlier and lower
+          gsap.set('#heroText', {
+            position: 'absolute',
+            top: currentScroll + window.innerHeight * 0.05,
+          });
+
+          // HeroNav slightly lower on small screens
+          setNavStyle({
+            pos: 'absolute',
+            top: currentScroll + window.innerHeight * 0.6 + 'px',
+          });
+        },
+        onLeaveBack: () => {
+          gsap.set('#heroText', {
+            position: 'fixed',
+            top: '6%',
+          });
+
+          setNavStyle({
+            pos: 'fixed',
+            top: '60%',
+          });
+        },
+      });
     });
 
-    // 3. GLOBAL NAVBAR SLIDE-IN (The Shared App Navbar)
-    // We target '.nav-content' which lives in your shared Navbar.jsx
+    /* ---------------- GLOBAL NAVBAR SLIDE-IN ---------------- */
     gsap.set('.nav-content', { y: '-110%', opacity: 0 });
 
     ScrollTrigger.create({
       trigger: '#textRevealParent',
-      start: '30% top', // Starts showing the global nav slightly after scroll
+      start: '30% top',
       onEnter: () => {
         gsap.to('.nav-content', {
           y: '0%',
@@ -78,24 +126,32 @@ const Hero = () => {
         });
       },
     });
-  }, []); // Empty dependency array ensures this runs once on mount
+
+    return () => mm.revert();
+  }, []);
 
   return (
     <div className="relative w-full">
-      {/* BACKGROUND LAYER */}
+      {/* ---------------- BACKGROUND ---------------- */}
       <div className="hero-sec relative h-screen w-full bg-[url(/images/mainBgImg.avif)] bg-center bg-no-repeat bg-cover z-10">
         <HeroFooter />
       </div>
 
-      {/* BIG CENTER TEXT */}
+      {/* ---------------- HERO TEXT ---------------- */}
       <h1
         id="heroText"
-        className="fixed font-[600] z-[25] top-[-5.8%] left-1/2 -translate-x-1/2 text-[16vw] tracking-[0.90] mix-blend-difference pointer-events-none text-white uppercase"
+        className="
+          fixed z-[25] left-1/2 -translate-x-1/2
+          font-[600] uppercase text-white mix-blend-difference pointer-events-none
+          tracking-[0.90]
+          text-[18vw] sm:text-[16vw] lg:text-[16vw]
+          top-[6%] lg:top-[-5.8%]
+        "
       >
         FUTURESCAPE
       </h1>
 
-      {/* THE CENTER NAV (Switches to absolute on scroll) */}
+      {/* ---------------- HERO NAV ---------------- */}
       <HeroNav pos={navStyle.pos} top={navStyle.top} />
     </div>
   );
