@@ -1,266 +1,224 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, Filter, ArrowRight, ArrowLeft, ChevronDown, SlidersHorizontal, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
+import { Search, X, Copy, Zap, Cpu, Palette, Check, ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+import Navbar from '../components/Navbar';
+import Footer from '../components/sections/Footer';
 
-// Reuse your existing components where possible
-import Navbar from '../components/Navbar'; 
-import Footer from '../components/sections/Footer'; // Assuming Footer is modularized as discussed
+// --- DATA ---
+const CATEGORIES = ["All", "Cinematic", "Architectural", "Abstract", "Fashion", "Surrealism"];
 
-// --- MOCK DATA (Backend Ready Structure) ---
-const CATEGORIES = ["All", "Cinematic", "Architectural", "Abstract", "Fashion", "Character", "Surrealism"];
-
-const MOCK_ARTWORKS = Array.from({ length: 12 }).map((_, i) => ({
+const MOCK_ARTWORKS = Array.from({ length: 14 }).map((_, i) => ({
   id: `art_${i}`,
-  title: [
-    "Neon Genesis Tokyo", "Velvet Entropy", "Cybernetic Solitude", 
-    "Orbital Decay", "Silicon Dreams", "Quantum Flora"
-  ][i % 6] + ` #${i + 1}`,
+  title: ["Vortex", "Symmetry", "Ghost Shell", "Neon Noir", "Ethereal", "Kinesis", "Static"][i % 7] + ` 0${i + 1}`,
   artist: ["Alex Rivera", "Sarah Chen", "Marcus V", "Elena D."][i % 4],
-  artistHandle: "@" + ["arivera", "schen_art", "mv_visuals", "elena_ai"][i % 4],
-  category: CATEGORIES[1 + (i % 6)], // Random category skipping "All"
-  image: i % 2 === 0 
-    ? "https://images.unsplash.com/photo-1620641788421-7f1c338e420a?q=80&w=1000&auto=format&fit=crop" 
-    : "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1000&auto=format&fit=crop", // Replace with your local ./images/
-  model: ["Midjourney v6", "Stable Diffusion XL", "DALL-E 3"][i % 3],
-  prompt: "A futuristic cityscape bathed in neon rain, volumetric lighting, 8k resolution, cinematic composition...",
-  likes: 120 + i * 5,
+  category: CATEGORIES[1 + (i % 5)],
+  image: `https://picsum.photos/seed/${i + 77}/1000/1200`,
+  model: "Stable Diffusion XL",
+  prompt: "Hyper-realistic render, cinematic lighting, intricate mechanical details, deep shadows, 8k octane render, brutalist composition.",
+  // Define bento spans based on index patterns
+  size: i === 0 || i === 7 ? 'large' : i === 3 || i === 8 ? 'wide' : i === 5 ? 'tall' : 'standard'
 }));
 
 const GalleryPage = () => {
-  const containerRef = useRef(null);
-  const gridRef = useRef(null);
-  
-  // --- STATE MANAGEMENT ---
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const [selectedArt, setSelectedArt] = useState(null);
 
-  // --- FILTERING LOGIC (Efficient) ---
   const filteredArtworks = useMemo(() => {
     return MOCK_ARTWORKS.filter(art => {
       const matchesCategory = activeCategory === "All" || art.category === activeCategory;
-      const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            art.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            art.model.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
   }, [activeCategory, searchQuery]);
 
-  // --- PAGINATION LOGIC ---
-  const totalPages = Math.ceil(filteredArtworks.length / itemsPerPage);
-  const currentArtworks = filteredArtworks.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // --- GSAP ANIMATIONS ---
-  useGSAP(() => {
-    // 1. Header Reveal
-    const tl = gsap.timeline();
-    tl.fromTo(".gallery-title-char", 
-      { y: 100, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.05, duration: 1, ease: "power4.out" }
-    )
-    .fromTo(".gallery-filters", 
-      { y: 20, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.8 }, 
-      "-=0.5"
-    );
-
-  }, { scope: containerRef });
-
-  // Re-trigger grid animation when data changes
-  useGSAP(() => {
-    if(gridRef.current) {
-        gsap.fromTo(gridRef.current.children, 
-            { y: 50, opacity: 0 },
-            { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: "power2.out", clearProps: "all" }
-        );
-    }
-  }, [currentPage, activeCategory, searchQuery]);
-
-  // --- HANDLERS ---
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      window.scrollTo({ top: window.innerHeight * 0.4, behavior: 'smooth' });
-      setCurrentPage(newPage);
-    }
-  };
-
   return (
-    <div ref={containerRef} className="w-full min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
-      
-      {/* 1. NAVBAR PLACEHOLDER (Or import your Navbar component) */}
-      <div className="fixed top-0 w-full z-50 text-white p-8 flex justify-between items-center">
-         <Navbar /> 
-      </div>
+    <div className="w-full min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
+      <Navbar />
 
-      {/* 2. HEADER SECTION */}
-      <header className="w-full h-[60vh] flex flex-col justify-end px-6 md:px-12 pb-12 border-b border-black/10">
-        <div className="overflow-hidden">
-          <h1 className="text-[12vw] leading-[0.8] tracking-tighter font-medium uppercase">
-            {"GALLERY".split("").map((char, i) => (
-              <span key={i} className="gallery-title-char inline-block">{char}</span>
-            ))}
-          </h1>
-        </div>
-        <div className="flex flex-col md:flex-row justify-between items-end mt-8 w-full">
-            <p className="gallery-filters text-sm md:text-lg max-w-md uppercase tracking-tight leading-snug">
-              Curated algorithmic masterpieces. <br/>
-              Where human intent meets machine precision.
-            </p>
-            <div className="gallery-filters hidden md:flex items-center gap-2 text-xs uppercase tracking-widest opacity-60">
-               <span>Live Database</span>
-               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+      {/* 1. TYPOGRAPHIC HEADER */}
+      <header className="px-6 md:px-12 pt-40 pb-20 border-b border-black/10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <h1 className="text-[14vw] leading-[0.75] font-medium uppercase tracking-tighter">
+                Visual<br/>Archive
+            </h1>
+            <div className="max-w-xs space-y-4">
+                <p className="text-[10px] uppercase tracking-[0.2em] leading-relaxed opacity-60">
+                    A curated selection of machine-generated artifacts. Each piece is a unique synthesis of algorithmic logic and human prompt engineering.
+                </p>
+                <div className="h-px w-full bg-black/10"></div>
+                <div className="flex justify-between text-[10px] font-bold">
+                    <span>V.2.06</span>
+                    <span>{filteredArtworks.length} ITEMS</span>
+                </div>
             </div>
         </div>
       </header>
 
-      {/* 3. CONTROLS SECTION (Search & Filter) */}
-      <section className="relative top-0 z-40 bg-white/90 backdrop-blur-md border-b border-black/5 px-6 md:px-12 py-4">
-        <div className="flex flex-col md:flex-row gap-6 justify-between items-center w-full">
-            
-            {/* Categories Scroll */}
-            <div className="w-full md:w-auto overflow-x-auto no-scrollbar flex items-center gap-2 pb-2 md:pb-0">
-               <SlidersHorizontal size={18} className="mr-4 shrink-0 opacity-50" />
-               {CATEGORIES.map((cat) => (
-                 <button 
-                   key={cat}
-                   onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
-                   className={`px-5 py-2 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300 border ${
-                     activeCategory === cat 
-                       ? "bg-black text-white border-black" 
-                       : "bg-transparent text-black border-black/20 hover:border-black"
-                   }`}
-                 >
-                   {cat}
-                 </button>
-               ))}
-            </div>
-
-            {/* Search Bar */}
-            <div className="relative w-full md:w-[300px]">
-                <input 
-                  type="text" 
-                  placeholder="Search artist, prompt, model..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#f4f4f4] text-black px-4 py-3 pl-10 rounded-none focus:outline-none text-sm tracking-wide uppercase placeholder:text-black/40 transition-colors focus:bg-[#ebebeb]"
-                />
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40" />
-            </div>
+      {/* 2. MINIMALIST CONTROLS */}
+      <section className="sticky top-0 z-[50] bg-white/90 backdrop-blur-xl px-6 md:px-12 py-6 border-b border-black/5 flex flex-col lg:flex-row justify-between items-center gap-8">
+        <div className="flex gap-6 overflow-x-auto no-scrollbar w-full lg:w-auto">
+          {CATEGORIES.map(cat => (
+            <button 
+              key={cat} 
+              onClick={() => setActiveCategory(cat)} 
+              className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all relative pb-1 ${
+                activeCategory === cat ? 'text-black' : 'text-black/30 hover:text-black'
+              }`}
+            >
+              {cat}
+              {activeCategory === cat && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-black"></div>}
+            </button>
+          ))}
+        </div>
+        
+        <div className="relative w-full lg:w-96 group">
+          <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 opacity-20 group-focus-within:opacity-100 transition-opacity" />
+          <input 
+            type="text" 
+            placeholder="Search the archive..." 
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent py-2 pl-6 text-[10px] uppercase outline-none border-b border-black/10 focus:border-black transition-all" 
+          />
         </div>
       </section>
 
-      {/* 4. ARTWORK GRID */}
-      <main className="w-full min-h-screen px-6 md:px-12 py-12">
-        {currentArtworks.length > 0 ? (
-           <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              {currentArtworks.map((art) => (
-                <ArtCard key={art.id} data={art} />
-              ))}
-           </div>
-        ) : (
-            <div className="w-full h-[40vh] flex flex-col items-center justify-center opacity-50">
-                <Sparkles size={48} strokeWidth={1} className="mb-4"/>
-                <p className="uppercase tracking-widest text-lg">No Artifacts Found</p>
-            </div>
-        )}
-
-        {/* 5. PAGINATION */}
-        <div className="w-full flex justify-between items-center mt-24 pt-8 border-t border-black/10">
-             <button 
-               disabled={currentPage === 1}
-               onClick={() => handlePageChange(currentPage - 1)}
-               className="group flex items-center gap-2 uppercase text-sm tracking-widest disabled:opacity-30 transition-all hover:-translate-x-2"
-             >
-                <ArrowLeft size={16} /> Previous
-             </button>
-             
-             <div className="flex gap-2">
-                {Array.from({length: totalPages}).map((_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-2 h-2 rounded-full transition-all ${currentPage === i + 1 ? 'bg-black scale-125' : 'bg-black/20'}`}
-                    />
-                ))}
-             </div>
-
-             <button 
-               disabled={currentPage === totalPages}
-               onClick={() => handlePageChange(currentPage + 1)}
-               className="group flex items-center gap-2 uppercase text-sm tracking-widest disabled:opacity-30 transition-all hover:translate-x-2"
-             >
-                Next <ArrowRight size={16} />
-             </button>
+      {/* 3. THE BENTO GRID */}
+      <main className="p-6 md:p-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 grid-flow-dense gap-6">
+          {filteredArtworks.map((art) => (
+            <BentoItem 
+              key={art.id} 
+              art={art} 
+              onOpen={() => setSelectedArt(art)} 
+            />
+          ))}
         </div>
       </main>
 
-      {/* 6. FOOTER */}
-      <Footer /> 
+      {/* 4. THE PORTAL MODAL */}
+      {selectedArt && createPortal(
+        <SpecModal art={selectedArt} onClose={() => setSelectedArt(null)} />,
+        document.body
+      )}
+
+      <Footer />
     </div>
   );
 };
 
-// --- SUB-COMPONENT: ART CARD ---
-const ArtCard = ({ data }) => {
-    return (
-        <div className="group relative w-full cursor-pointer">
-            {/* Image Container */}
-            <div className="relative w-full aspect-[4/5] overflow-hidden bg-gray-100">
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 z-10" />
-                
-                <img 
-                   src={data.image} 
-                   alt={data.title} 
-                   loading="lazy"
-                   className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-105"
-                />
+// --- BENTO ITEM COMPONENT ---
+const BentoItem = ({ art, onOpen }) => {
+  // Logic to determine grid spans
+  const spanClass = {
+    large: "md:col-span-2 md:row-span-2 aspect-square md:aspect-auto",
+    wide: "md:col-span-2 aspect-[16/9]",
+    tall: "md:row-span-2 aspect-[3/4] md:aspect-auto",
+    standard: "aspect-[4/5]"
+  }[art.size];
 
-                {/* Hover Overlay: Technical Details */}
-                <div className="absolute inset-0 z-20 p-6 flex flex-col justify-end opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 text-white">
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-[0.65rem] uppercase tracking-widest opacity-70 mb-1">Prompt Snippet</p>
-                            <p className="text-xs leading-relaxed line-clamp-3 font-light border-l-2 border-white/50 pl-3">
-                                "{data.prompt}"
-                            </p>
-                        </div>
-                        <div className="flex items-center justify-between border-t border-white/20 pt-3">
-                            <div>
-                                <p className="text-[0.65rem] uppercase tracking-widest opacity-70">Model</p>
-                                <p className="text-xs font-medium">{data.model}</p>
-                            </div>
-                            <button className="bg-white text-black text-[0.65rem] uppercase font-bold px-4 py-2 hover:bg-white/90 transition-colors">
-                                View Specs
-                            </button>
-                        </div>
+  return (
+    <div 
+      className={`group relative overflow-hidden bg-zinc-100 border border-black/5 transition-all duration-700 ${spanClass}`}
+    >
+      <img 
+        src={art.image} 
+        className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110" 
+        alt="" 
+      />
+      
+      {/* Dynamic Overlay */}
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 backdrop-blur-[2px]">
+        <div className="flex justify-between items-start translate-y-[-10px] group-hover:translate-y-0 transition-transform duration-500">
+            <span className="text-[10px] text-white/60 font-medium uppercase tracking-widest">{art.category}</span>
+            <ArrowUpRight size={20} className="text-white"/>
+        </div>
+
+        <div className="translate-y-[20px] group-hover:translate-y-0 transition-transform duration-500">
+            <h3 className="text-white text-xl font-bold uppercase tracking-tighter mb-4">{art.title}</h3>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onOpen(); }}
+              className="w-full bg-white text-black py-3 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors"
+            >
+              View Specs
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- SPEC MODAL (PORTAL READY) ---
+const SpecModal = ({ art, onClose }) => {
+  const modalRef = useRef();
+
+  useGSAP(() => {
+    gsap.fromTo(modalRef.current, 
+        { opacity: 0, y: 30, scale: 0.95 }, 
+        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power4.out" }
+    );
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 md:p-10" onClick={onClose}>
+      <div 
+        ref={modalRef}
+        className="bg-white text-black w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col lg:flex-row relative"
+        onClick={e => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-6 right-6 z-10 p-4 bg-white hover:bg-black hover:text-white transition-all">
+            <X size={20}/>
+        </button>
+
+        {/* Image Section */}
+        <div className="w-full lg:w-1/2 bg-zinc-200">
+            <img src={art.image} className="w-full h-full object-cover" alt="" />
+        </div>
+
+        {/* Details Section */}
+        <div className="w-full lg:w-1/2 p-8 md:p-16 flex flex-col overflow-y-auto">
+            <div className="mb-12">
+                <span className="text-[10px] font-black tracking-[0.4em] opacity-30 uppercase block mb-2">{art.category}</span>
+                <h2 className="text-6xl font-medium uppercase tracking-tighter leading-none">{art.title}</h2>
+                <p className="mt-4 text-xs font-bold opacity-50 uppercase tracking-widest">Architect: {art.artist}</p>
+            </div>
+
+            <div className="space-y-10">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-[10px] font-black tracking-widest opacity-30">
+                        <Palette size={14}/> 
+                        PROMPT BLUEPRINT
+                    </div>
+                    <div className="bg-zinc-50 p-6 border border-black/5 text-xs md:text-sm font-mono leading-relaxed group relative">
+                        {art.prompt}
+                        <button className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => navigator.clipboard.writeText(art.prompt)}>
+                            <Copy size={14}/>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            {/* Always Visible Info */}
-            <div className="mt-4 flex justify-between items-start">
-                <div>
-                    <h3 className="text-lg font-medium uppercase tracking-tight leading-none group-hover:text-gray-600 transition-colors">
-                        {data.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">
-                        By <span className="text-black">{data.artist}</span>
-                    </p>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 border border-black/10">
+                        <p className="text-[9px] font-black opacity-30 mb-2 uppercase">Core Model</p>
+                        <p className="text-xs font-bold uppercase">{art.model}</p>
+                    </div>
+                    <div className="p-4 border border-black/10">
+                        <p className="text-[9px] font-black opacity-30 mb-2 uppercase">Render Mode</p>
+                        <p className="text-xs font-bold uppercase">Raw - 4000px</p>
+                    </div>
                 </div>
-                <div className="text-right">
-                     <span className="text-[0.65rem] border border-black/20 px-2 py-1 rounded uppercase tracking-wider">
-                        {data.category}
-                     </span>
-                </div>
+
+                <button className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.4em] hover:bg-zinc-800 transition-all flex items-center justify-center gap-4 group">
+                    License Artwork
+                    <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"/>
+                </button>
             </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default GalleryPage;

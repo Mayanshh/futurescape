@@ -68,7 +68,7 @@ const Footer = () => {
               src="/images/epv-logo.svg"
               alt="EPV Logo"
               loading="eager"
-              fetchpriority="high"
+              fetchPriority="high"
               className="object-contain"
             />
           </div>
