@@ -1,4 +1,3 @@
-import React from 'react';
 import MarqueeSection from '../MarqueeSection';
 
 const Vision = () => {

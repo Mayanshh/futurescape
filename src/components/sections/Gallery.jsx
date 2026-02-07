@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight, ArrowDownRight } from 'lucide-react';
 import TextScroll from '../effects/TextScroll';
 

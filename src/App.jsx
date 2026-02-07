@@ -1,64 +1,39 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
 import './index.css';
 
-// Components
+// Global Components
 import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
-import FullScreenMenu from './components/FullScreenMenu';
 import TransitionPortal from './components/TransitionPortal';
 
-// Sections
-import Hero from './components/sections/Hero';
-import About from './components/sections/About';
-import Workflow from './components/sections/Workflow';
-import Projects from './components/sections/Projects';
-import Gallery from './components/sections/Gallery';
-import Vision from './components/sections/Vision';
-import Footer from './components/sections/Footer';
+// Pages
+import HomePage from './pages/HomePage';
+import GalleryPage from './pages/GalleryPage'; // The page we discussed earlier
 
 gsap.registerPlugin(ScrollTrigger);
 
 const App = () => {
   const lenisRef = useRef(null);
-  const secondaryNavRef = useRef(null);
   const mainContentRef = useRef(null);
-
-  // Loading State
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize Lenis
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
       wheelMultiplier: 2.6,
-      touchMultiplier: 1.4,
     });
     lenisRef.current = lenis;
+    lenis.stop(); // Lock scroll for preloader
 
-    // LOCK SCROLL INITIALLY
-    lenis.stop();
-
-    ScrollTrigger.scrollerProxy(document.body, {
-      scrollTop(value) {
-        return arguments.length
-          ? lenis.scrollTo(value, { immediate: true })
-          : lenis.scroll;
-      },
-      getBoundingClientRect() {
-        return {
-          top: 0,
-          left: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        };
-      },
-    });
-
+    // Sync ScrollTrigger with Lenis
     lenis.on('scroll', ScrollTrigger.update);
     const raf = (time) => {
       lenis.raf(time);
@@ -66,28 +41,20 @@ const App = () => {
     };
     requestAnimationFrame(raf);
 
-    // HANDLE WINDOW LOAD
     const handleLoad = () => {
       setTimeout(() => {
         setIsLoading(false);
-        lenis.start(); // Unlock scroll
-
-        // Reveal the main content
+        lenis.start();
         gsap.to(mainContentRef.current, {
           opacity: 1,
           duration: 0.5,
           ease: 'power2.inOut',
         });
-      }, 2500); // 2.5s minimum load time
+      }, 2500);
     };
 
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-    }
-
-    ScrollTrigger.refresh();
+    if (document.readyState === 'complete') handleLoad();
+    else window.addEventListener('load', handleLoad);
 
     return () => {
       lenis.destroy();
@@ -96,22 +63,22 @@ const App = () => {
   }, []);
 
   return (
-    <div className="w-full bg-black text-white">
-      <Preloader isLoading={isLoading} />
+    <Router>
+      <div className="w-full bg-black text-white">
+        <Preloader isLoading={isLoading} />
 
-      <div ref={mainContentRef} className="opacity-0">
-        <Hero />
-        <About />
-        <Workflow />
-        <FullScreenMenu />
-        <Projects />
-        <Gallery />
-        <Vision />
-        <Footer />
-        <Navbar ref={secondaryNavRef} />
-        <TransitionPortal lenis={lenisRef.current} />
+        <div ref={mainContentRef} className="opacity-0">
+          {/* Shared UI elements across pages */}
+          <Navbar />
+          <TransitionPortal lenis={lenisRef.current} />
+
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </Router>
   );
 };
 

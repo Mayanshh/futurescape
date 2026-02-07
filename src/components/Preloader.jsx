@@ -90,7 +90,7 @@ const Preloader = ({ isLoading }) => {
       </div>
 
       <div ref={textRef} className="relative z-10 flex overflow-hidden">
-        {"CHD".split("").map((char, i) => (
+        {"FUTURESCAPE".split("").map((char, i) => (
           <div key={i} className="overflow-hidden px-1">
             <span id='loading_txt' className="char inline-block text-[6vw] text-white leading-none">
               {char}

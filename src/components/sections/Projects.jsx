@@ -1,4 +1,3 @@
-import React from 'react';
 import CutoutParallax from '../effects/CutOutParallax';
 
 const Projects = () => {
