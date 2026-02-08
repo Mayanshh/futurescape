@@ -56,7 +56,7 @@ const ImageMarquee = ({
         {displayImages.map((src, index) => (
           <div 
             key={index} 
-            className={`flex-shrink-0 flex items-center justify-center w-[calc(100vw/6-1.5rem)] h-[150px] bg-[#ececec] ${rounded} overflow-hidden border border-gray-200/50 shadow-sm`}
+            className={`flex-shrink-0 flex items-center justify-center lg:w-[calc(100vw/6-1.5rem)] h-[150px] bg-[#ececec] ${rounded} overflow-hidden border border-gray-200/50 shadow-sm`}
           >
             <img 
               src={src} 
@@ -83,7 +83,7 @@ const MarqueeSection = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col gap-0 py-4">
+    <div className="w-full flex flex-col gap-0py-4">
       {/* Top Marquee: Moving Left */}
       <ImageMarquee 
         images={sampleImages} 

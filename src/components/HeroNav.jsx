@@ -4,66 +4,39 @@ import { gsap } from 'gsap';
 
 const HeroNav = ({ pos = 'fixed', top = '46.5%' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // GSAP Refs
   const overlayRef = useRef(null);
   const linksRef = useRef([]);
   const timeline = useRef(null);
 
-  // Custom navigation handler
   const handleNav = (e, path) => {
     e.preventDefault();
-    if (!path || path === '#') return;
-
-    // Close menu immediately
     toggleMenu(false);
-
-    const navEvent = new CustomEvent('pageTransition', {
-      detail: { path },
-    });
+    const navEvent = new CustomEvent('pageTransition', { detail: { path } });
     window.dispatchEvent(navEvent);
   };
 
-  // GSAP Timeline
   useEffect(() => {
     const ctx = gsap.context(() => {
       timeline.current = gsap.timeline({ paused: true })
-        // Overlay reveal (FAST)
         .to(overlayRef.current, {
+          autoAlpha: 1,
           clipPath: 'inset(0 0 0% 0)',
-          duration: 0.45,
-          ease: 'power4.out',
+          duration: 0.5,
+          ease: 'power4.inOut',
         })
-        // Links reveal (early + tight)
-        .from(
-          linksRef.current,
-          {
-            y: 40,
-            opacity: 0,
-            duration: 0.4,
-            stagger: 0.06,
-            ease: 'power3.out',
-            clearProps: 'all',
-          },
-          '-=0.3'
+        .fromTo(linksRef.current, 
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, ease: 'power3.out' },
+          "-=0.2"
         );
     });
-
     return () => ctx.revert();
   }, []);
 
-  // Toggle Menu
   const toggleMenu = (state) => {
     setIsOpen(state);
-
-    if (state) {
-      timeline.current.timeScale(1).play();
-      document.body.style.overflow = 'hidden';
-    } else {
-      timeline.current.timeScale(1.2).reverse(); // Faster close
-      document.body.style.overflow = '';
-    }
+    state ? timeline.current.play() : timeline.current.reverse();
+    document.body.style.overflow = state ? 'hidden' : '';
   };
 
   const navLinks = [
@@ -75,83 +48,59 @@ const HeroNav = ({ pos = 'fixed', top = '46.5%' }) => {
 
   return (
     <>
-      {/* ---------------- HERO NAV BAR ---------------- */}
-      <div
-        id="heroNav"
-        style={{ position: pos, top }}
-        className="w-full max-w-full h-fit flex items-center justify-between z-[100] left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 md:px-10 pointer-events-none"
-      >
-        {/* DESKTOP NAV */}
-        <div className="hidden md:flex items-center gap-[15px] uppercase text-[0.89em] tracking-tighter mix-blend-difference text-white pointer-events-auto">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.path}
-              onClick={(e) => handleNav(e, link.path)}
-              className="hover:opacity-50 transition-opacity"
-            >
-              {link.name}
-            </a>
-          ))}
-        </div>
-
-        {/* MOBILE MENU TOGGLE */}
-        <div className="md:hidden flex items-center mix-blend-difference text-white pointer-events-auto">
-          <button
-            onClick={() => toggleMenu(!isOpen)}
-            className="text-[0.8em] tracking-[0.2em] uppercase font-medium focus:outline-none"
-          >
-            {isOpen ? 'CLOSE' : 'MENU'}
-          </button>
-        </div>
-
-        {/* RIGHT SIDE ACTIONS */}
-        <div className="uppercase text-[0.75em] md:text-[0.89em] tracking-tighter mix-blend-difference text-white pointer-events-auto flex items-center">
-          <a
-            href="/auth"
-            onClick={(e) => handleNav(e, '/auth')}
-            className="hover:opacity-50 transition-opacity"
-          >
-            EXPLORE&nbsp;
-          </a>
-          <span className="opacity-30">----</span>
-          <a
-            href="/auth"
-            onClick={(e) => handleNav(e, '/auth')}
-            className="hover:opacity-50 transition-opacity"
-          >
-            &nbsp;ENROLL
-          </a>
-        </div>
-      </div>
-
-      {/* ---------------- MOBILE OVERLAY ---------------- */}
+      {/* 1. MOBILE OVERLAY - Separated for visibility */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[90] bg-black flex flex-col justify-center px-8 md:hidden"
-        style={{ clipPath: 'inset(0 0 100% 0)' }}
+        className="fixed inset-0 z-[150] bg-neutral-950 flex flex-col justify-center !w-[100vw] px-2 lg:px-8 md:hidden pointer-events-none"
+        style={{ clipPath: 'inset(0 0 100% 0)', visibility: 'hidden' }}
       >
-        <div className="flex flex-col gap-4">
+        <div className={`flex flex-col gap-4 ${isOpen ? 'pointer-events-auto' : ''}`}>
           {navLinks.map((link, i) => (
             <div key={link.name} className="overflow-hidden">
               <a
                 ref={(el) => (linksRef.current[i] = el)}
                 href={link.path}
                 onClick={(e) => handleNav(e, link.path)}
-                className="text-white text-6xl font-light tracking-tighter uppercase block hover:italic transition-all duration-300"
+                className="text-white text-[12vw] font-bold uppercase block leading-tight"
               >
                 {link.name}
               </a>
             </div>
           ))}
         </div>
-
-        {/* FOOTER */}
-        <div className="absolute bottom-12 left-8 flex flex-col gap-2 opacity-40 text-white text-[0.6em] tracking-widest uppercase">
-          <span>Architectural Identity</span>
-          <span>© 2026 Collective</span>
-        </div>
       </div>
+
+      {/* 2. THE NAVBAR */}
+      <nav
+        id="heroNav"
+        style={{ position: pos, top: top }}
+        className="!w-[100vw] lg:w-full h-fit flex items-center justify-between z-[200] lg:left-1/2 lg:-translate-x-1/2 -translate-y-1/2 px-6 md:px-10 pointer-events-none transition-[top] duration-300"
+      >
+        {/* Left: Mobile Toggle / Desktop Links */}
+        <div className="flex items-center pointer-events-auto">
+          <button 
+            onClick={() => toggleMenu(!isOpen)} 
+            className="md:hidden text-white mix-blend-difference text-[0.75rem] font-bold tracking-[0.2em] uppercase"
+          >
+            {isOpen ? 'CLOSE' : 'MENU'}
+          </button>
+
+          <div className="hidden md:flex items-center gap-6 text-white mix-blend-difference uppercase text-[0.85rem] tracking-tighter">
+            {navLinks.map((link) => (
+              <a key={link.name} href={link.path} onClick={(e) => handleNav(e, link.path)} className="hover:opacity-50">
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 text-white mix-blend-difference pointer-events-auto uppercase text-[0.75rem] md:text-[0.85rem] tracking-tighter">
+          <a href="/auth" onClick={(e) => handleNav(e, '/auth')}>EXPLORE</a>
+          <span className="opacity-30">——</span>
+          <a href="/auth" onClick={(e) => handleNav(e, '/auth')}>ENROLL</a>
+        </div>
+      </nav>
     </>
   );
 };

@@ -2,21 +2,38 @@ import React from 'react'
 import InfiniteRisingText from './effects/InfiniteRisingText';
 import { ArrowDownRight } from 'lucide-react';
 
-const heroFooter = () => {
+const HeroFooter = () => {
   return (
-    <div className='w-full max-w-full h-[80px] flex items-center justify-between absolute z-1 bottom-[1.85%] leading-[1.15] left-1/2 -translate-x-1/2 px-[1.9em] text-white'>
-      <div className='w-[20em] h-full uppercase text-[1.025em] indent-17 tracking-tighter'>Digital-atelier fusing machine intelligence with human craft <br /> 
-      <a href="#" className='text-[0.87em] uppercase relative top-2 transform -translate-y-1/2'>LEARN MORE <ArrowDownRight className="w-[0.8em] absolute -bottom-[0.3em] -right-4 " /></a> 
+    <div className='sm:w-[100vw] lg:w-full max-w-[100vw] h-auto lg:h-[80px] flex items-end lg:items-center justify-between absolute z-10 bottom-[8%] md:bottom-[10%] lg:bottom-[1.85%] left-1/2 -translate-x-1/2 px-4 md:px-8 lg:px-[1.9em] text-white pointer-events-none'>
+      
+      {/* Left Content - Wider on mobile now that center is hidden */}
+      <div className='!w-[48vw] lg:w-[20em] uppercase text-[0.8rem] md:text-[0.8rem] lg:text-[1.025em] leading-tight lg:leading-[1.15] tracking-tighter pointer-events-auto'>
+        <p className="indent-4 md:indent-8 lg:indent-12">
+          Digital-atelier fusing machine intelligence with human craft
+        </p>
+        <a href="#" className='inline-flex items-center gap-1 mt-2 text-[0.87em] hover:opacity-70 transition-opacity'>
+          LEARN MORE <ArrowDownRight className="w-[1em] h-[1em]" />
+        </a> 
       </div> 
-      <div className='w-[100px] h-full flex items-center justify-center'>
+
+      {/* Center - Hidden on mobile/tablet, flex on desktop */}
+      <div className='hidden lg:flex lg:w-[90vw] items-center justify-center pointer-events-auto'>
         <InfiniteRisingText 
           text="SCROLL" 
-          className="text-md font-bold text-white tracking-tighter uppercase" 
+          className="lg:text-md font-bold text-white tracking-tighter uppercase" 
         />
       </div>
-      <div className='w-[18em] h-full uppercase text-[1.025em] tracking-tighter text-right'>Innovation-hub pioneering the next revolution in creative art <br /> <a href="#" className='text-[0.87em] uppercase relative right-4 top-2 transform -translate-y-1/2'>FIND OUT YOURSELF <ArrowDownRight className="w-[0.8em] absolute -bottom-[0.3em] -right-4 " /></a> </div> 
+
+      {/* Right Content - Wider on mobile */}
+      <div className='!w-[48vw] lg:w-[18em] uppercase text-[0.8rem] md:text-[0.8rem] lg:text-[1.025em] leading-tight lg:leading-[1.15] tracking-tighter text-right pointer-events-auto'>
+        <p>Innovation-hub pioneering the next revolution in creative art</p>
+        <a href="#" className='inline-flex items-center gap-1 mt-2 text-[0.87em] float-right hover:opacity-70 transition-opacity'>
+          FIND OUT YOURSELF <ArrowDownRight className="w-[1em] h-[1em]" />
+        </a> 
+      </div> 
+
     </div>
   )
 }
 
-export default heroFooter
+export default HeroFooter;

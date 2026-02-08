@@ -146,7 +146,7 @@ const FullScreenMenu = () => {
   };
 
   return (
-    <div id='expertise-section' className='min-h-[150vh] relative flex items-center justify-start flex-col w-full h-[150vh] bg-black overflow-hidden'>
+    <div id='expertise-section' className='max-h-[100svh] lg:min-h-[150vh] relative flex items-center justify-center lg:justify-start flex-col w-full h-[150vh] bg-black overflow-hidden'>
       
       {/* BACKGROUND MANAGER */}
       <div ref={bgContainerRef} className="absolute inset-0 z-0">
@@ -157,17 +157,17 @@ const FullScreenMenu = () => {
       </div>
 
       {/* HEADER SECTION */}
-      <div className="relative z-20 w-full min-h-[32.5%] text-white pointer-events-none">
-        <div className='okomito-bold w-[47%] h-fit absolute top-[2.25em] left-0 px-8'>
+      <div className="absolute top-0 lg:relative z-20 min-w-screen min-h-[18vh] lg:min-h-[32.5%] text-white pointer-events-none">
+        <div className='okomito-bold w-full lg:w-[47%] h-fit absolute top-[2.25em] left-0 px-6 lg:px-8'>
           <SmoothReveal 
             text=" &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  FUTURESCAPE STUDIOS is both a digital lab and a creative foundry dedicated to generative innovation."
-            className="text-[1.7em] leading-[0.8] font-[500] text-white w-full tracking-tight uppercase"
+            className="text-[1.25rem] lg:text-[1.7em] leading-[0.8] font-[500] text-white w-full tracking-tight uppercase"
           />
         </div>
       </div>
 
       {/* MENU ROWS */}
-      <div className='relative z-20 min-h-[67.5%] bg-transparent w-full flex flex-col items-start justify-start px-8'>
+      <div className='relative  z-20 lg:min-h-[67.5%] bg-transparent w-full flex flex-col items-start justify-start px-6 lg:px-8'>
         {['CURATE', 'DESIGN', 'PROTOTYPE', 'EXHIBIT'].map((title, i) => (
           <MenuRow 
             key={title}

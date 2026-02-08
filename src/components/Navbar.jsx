@@ -110,7 +110,7 @@ const Navbar = forwardRef(({ pos = 'fixed', top = '8.87%' }, ref) => {
           
           {/* DESKTOP LINKS (Hidden on Mobile) */}
           <div className="hidden lg:flex items-center justify-center gap-[15px] uppercase text-[0.89em] tracking-tighter">
-            {menuItems.slice(1).map((item) => (
+            {menuItems.map((item) => (
               <a 
                 key={item.label} 
                 href={item.path} 

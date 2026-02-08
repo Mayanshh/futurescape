@@ -1,69 +1,82 @@
-CHDARTMAKER Clone
-A high-performance, visually immersive web application cloned from chdartmaker.com. This project focuses on high-end transitions, smooth scrolling, and sophisticated "Artistic Engineering" aesthetics.
+# FSS / ARCHIVE [V.2.06]
 
-🎨 Project Overview
-This project is a technical study in modern front-end motion design. It replicates the minimalist, luxury brand identity of CHD, specializing in art fabrication and contemporary creation.
+> **"SHAPE THE SYNTHETIC FRONTIER."**
 
-Key Features
-Custom Preloader: A sequenced loading screen featuring rapid image cycling, rising typography, and a seamless fade-out transition.
+![Project Status](https://img.shields.io/badge/Status-Experimental-black?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-black?style=for-the-badge)
+![Framework](https://img.shields.io/badge/React-18-black?style=for-the-badge)
 
-Smooth Scrolling: Integrated Lenis for inertial, buttery-smooth scrolling across all devices.
+##  ✺ THE MANIFESTO
 
-Scroll-Triggered Animations: Complex pinning, parallax image effects, and text reveals powered by GSAP (GreenSock).
+**FSS (Future Systems / Synthetic)** is a curated digital marketplace and archive for high-fidelity AI-generated artifacts. It bridges the gap between algorithmic logic and human curation.
 
-Dynamic Navbar: A reactive navigation system that transitions styles based on scroll depth and section entry.
+Designed with a **Brutalist / Architectural** aesthetic, this project prioritizes kinetic typography, micro-interactions, and performance. It abandons standard e-commerce tropes in favor of an immersive, gallery-like experience using **Bento Grids**, **Ghost Hovers**, and **Cinematic Transitions**.
 
-Parallax Cutouts: Deep-scrolling image containers that create a window-like effect into project photography.
+---
 
-Infinite Marquees: Smooth-looping text carousels for location and brand details.
+## ⚡ CORE TECH STACK
 
-🚀 Tech Stack
-Framework: React.js
+This project is built on a modern, performance-obsessed stack:
 
-Animation: GSAP (ScrollTrigger, useGSAP)
+| Technology | Purpose |
+| :--- | :--- |
+| **React 18** | Component architecture and state management. |
+| **Vite** | Blazing fast build tool and HMR. |
+| **Tailwind CSS** | Utility-first styling for architectural layouts. |
+| **GSAP (GreenSock)** | Complex timeline animations and staggered reveals. |
+| **Lenis Scroll** | Butter-smooth inertial scrolling. |
+| **Lucide React** | Minimalist, stroke-based iconography. |
+| **React Portal** | DOM teleportation for high-performance Modals. |
 
-Smooth Scroll: Lenis
+---
 
-Styling: Tailwind CSS
+## 💎 KEY FEATURES & UX "SPECIAL TOUCHES"
 
-Icons: Lucide React
+### 1. The Dynamic Bento Gallery
+* **Grid-Flow-Dense:** A non-linear grid that automatically packs images of different aspect ratios (Wide, Tall, Standard) into a seamless masonry layout.
+* **Dual-Layer Hover:** Cards feature a "shutter" effect where information slides in from opposing axes.
 
-Portal Rendering: React Portals (for seamless overlay transitions)
+### 2. The "Ghost" Artist List
+* **Interactive Inversion:** Artist rows invert colors (White → Black) on interaction.
+* **Floating Preview:** A cursor-following "Ghost Image" reveals the artist's top work only when hovering, keeping the UI clean until engaged.
+* **Staggered Entrance:** List items cascade in using `GSAP Stagger` for a premium feel.
 
-🛠️ Installation & Setup
-Clone the repository:
+### 3. Bulletproof Modals
+* **React Portals:** Modals are rendered outside the DOM hierarchy (attached to `body`) to prevent Z-index fighting and `insertBefore` crashes.
+* **Safety Layers:** Includes `e.stopPropagation` handling and `?.` optional chaining to prevent "Blank Screen" errors on rapid clicking.
 
-Bash
+### 4. Cinematic Navigation
+* **Full-Screen Overlay:** A custom GSAP timeline animates a full-screen menu with a "wipe" effect.
+* **Custom Event Routing:** Dispatches `pageTransition` events to ensure smooth exits before changing routes.
 
-git clone https://github.com/Mayanshh/chdartmaker-clone.git
-Install dependencies:
+---
 
-Bash
+## 🛠 INSTALLATION & SETUP
 
-cd chdartmaker-clone
-npm install
-Run the development server:
+**Prerequisites:** Node.js (v16+)
 
-Bash
+1.  **Clone the Archive:**
+    ```bash
+    git clone [https://github.com/Mayanshh/futurescape](https://github.com/Mayanshh/futurescape)
+    cd fss-archive
+    ```
 
-npm run dev
-Build for production:
+2.  **Install Dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-Bash
+3.  **Ignite Local Server:**
+    ```bash
+    npm run dev
+    ```
 
-npm run build
-📐 Architecture Highlights
-The Preloader Logic
-The site uses a TransitionPortal and a Preloader component. The preloader ensures the main site content is hidden (opacity: 0) until the initial assets and animations are ready, preventing the "Flash of Unstyled Content" (FOUC).
+4.  **Build for Production:**
+    ```bash
+    npm run build
+    ```
 
-Artistic Engineering Grid
-The layout utilizes a strict typographic grid. Most dimensions are set using vw (viewport width) units to ensure the high-end editorial look remains consistent across different screen sizes.
+---
 
-Scroll Pinning
-Multiple sections utilize GSAP's pin feature, allowing text to remain fixed while background images or secondary content scroll past, mimicking the "overlay" effect of the original site.
-
-
-📜 License
-This project is for educational/portfolio purposes only. The original design, imagery, and branding are the intellectual property of CHD Artmaker.
-
-Created with ❤️ by Mayansh
